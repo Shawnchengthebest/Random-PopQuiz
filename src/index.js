@@ -23,7 +23,7 @@ import './index.css';
 // Set the document title
 document.title = 'Random Popquiz';
 
-const nerdEmojis = ['🤓', '🧠', '👨‍🔬', '👩‍🔬', '🤖', '💻', '📚'];
+const nerdEmojis = ['🤓', '🧠', '👨‍🔬', '👩‍🔬', '🤖', '💻', '📚', '😂'];
 
 function NerdBackground() {
   const [emojis, setEmojis] = useState([]);
@@ -68,8 +68,30 @@ function NerdBackground() {
 function App() {
   const [gameState, setGameState] = useState('start'); // 'start', 'countdown', or 'quiz'
   const [countdown, setCountdown] = useState(5);
+  const [visitCount, setVisitCount] = useState(0);
 
-  const handleStart = () => {
+  useEffect(() => {
+    fetchVisitCount();
+  }, []);
+
+  const fetchVisitCount = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/visits');
+      const data = await response.json();
+      setVisitCount(data.count);
+    } catch (error) {
+      console.error('Error fetching visit count:', error);
+    }
+  };
+
+  const handleStart = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/visits', { method: 'POST' });
+      const data = await response.json();
+      setVisitCount(data.count);
+    } catch (error) {
+      console.error('Error updating visit count:', error);
+    }
     setGameState('countdown');
   };
 
@@ -89,6 +111,7 @@ function App() {
       {gameState === 'start' && (
         <div className="App-header">
           <h1>Random Popquiz</h1>
+          <p>This quiz has been taken {visitCount} times!</p>
           <button onClick={handleStart} className="start-button">
             Click to start
           </button>

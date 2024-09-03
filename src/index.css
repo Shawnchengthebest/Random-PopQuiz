@@ -188,7 +188,7 @@ body {
 }
 
 .answers button.correct {
-  background-color: #4CAF50;
+  background-color: #1e90ff; /* Changed to dodger blue */
   color: white;
 }
 
