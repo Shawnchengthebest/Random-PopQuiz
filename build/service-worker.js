@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/Random-PopQuiz/precache-manifest.2d73ec4a588917114d06c18ee8fb7cf9.js"
+  "/Random-PopQuiz/precache-manifest.05c458c36a9884682c67f8ca76070ab8.js"
 );
 
 self.addEventListener('message', (event) => {
