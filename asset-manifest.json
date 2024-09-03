@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/Random-PopQuiz/static/css/main.931aa199.chunk.css",
-    "main.js": "/Random-PopQuiz/static/js/main.9a0e1948.chunk.js",
-    "main.js.map": "/Random-PopQuiz/static/js/main.9a0e1948.chunk.js.map",
+    "main.css": "/Random-PopQuiz/static/css/main.76e85829.chunk.css",
+    "main.js": "/Random-PopQuiz/static/js/main.86f9b6d8.chunk.js",
+    "main.js.map": "/Random-PopQuiz/static/js/main.86f9b6d8.chunk.js.map",
     "runtime-main.js": "/Random-PopQuiz/static/js/runtime-main.78de0edf.js",
     "runtime-main.js.map": "/Random-PopQuiz/static/js/runtime-main.78de0edf.js.map",
     "static/js/2.cbe11241.chunk.js": "/Random-PopQuiz/static/js/2.cbe11241.chunk.js",
     "static/js/2.cbe11241.chunk.js.map": "/Random-PopQuiz/static/js/2.cbe11241.chunk.js.map",
     "index.html": "/Random-PopQuiz/index.html",
-    "precache-manifest.a7462c1850ca07836af595e8c7d5a44d.js": "/Random-PopQuiz/precache-manifest.a7462c1850ca07836af595e8c7d5a44d.js",
+    "precache-manifest.2d73ec4a588917114d06c18ee8fb7cf9.js": "/Random-PopQuiz/precache-manifest.2d73ec4a588917114d06c18ee8fb7cf9.js",
     "service-worker.js": "/Random-PopQuiz/service-worker.js",
-    "static/css/main.931aa199.chunk.css.map": "/Random-PopQuiz/static/css/main.931aa199.chunk.css.map",
+    "static/css/main.76e85829.chunk.css.map": "/Random-PopQuiz/static/css/main.76e85829.chunk.css.map",
     "static/js/2.cbe11241.chunk.js.LICENSE.txt": "/Random-PopQuiz/static/js/2.cbe11241.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.78de0edf.js",
     "static/js/2.cbe11241.chunk.js",
-    "static/css/main.931aa199.chunk.css",
-    "static/js/main.9a0e1948.chunk.js"
+    "static/css/main.76e85829.chunk.css",
+    "static/js/main.86f9b6d8.chunk.js"
   ]
 }
