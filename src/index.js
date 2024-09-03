@@ -66,322 +66,172 @@ function NerdBackground() {
 }
 
 function App() {
+  const [gameState, setGameState] = useState('start'); // 'start', 'countdown', or 'quiz'
+  const [countdown, setCountdown] = useState(5);
+
   const handleStart = () => {
-    const quizWindow = window.open('', '_blank');
-    quizWindow.document.write(`
-      <html>
-        <head>
-          <title>Random Popquiz</title>
-          <style>
-            body {
-              background-color: #FFFF00;
-              margin: 0;
-              padding: 20px;
-              font-family: Arial, sans-serif;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-              transition: background-color 0.5s ease;
-            }
-            #countdown {
-              font-size: 100px;
-              color: black;
-              text-align: center;
-            }
-            #quiz-content {
-              display: none;
-              width: 100%;
-              max-width: 600px;
-            }
-            h1 {
-              color: black;
-              text-align: center;
-            }
-            .question {
-              background-color: #E6D000;
-              border-radius: 10px;
-              padding: 20px;
-              margin-bottom: 20px;
-              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            }
-            button {
-              display: block;
-              width: 100%;
-              padding: 10px;
-              margin-top: 10px;
-              background-color: rgba(255, 255, 255, 0.6);
-              color: black;
-              border: none;
-              border-radius: 5px;
-              cursor: pointer;
-              transition: background-color 0.3s;
-            }
-            button:hover {
-              background-color: rgba(255, 255, 255, 0.8);
-            }
-            .correct {
-              background-color: rgba(76, 175, 80, 0.8) !important;
-            }
-            .incorrect {
-              background-color: rgba(244, 67, 54, 0.8) !important;
-            }
-            #score {
-              position: fixed;
-              top: 20px;
-              right: 20px;
-              background-color: rgba(0, 0, 0, 0.7);
-              color: white;
-              padding: 10px 15px;
-              border-radius: 5px;
-              font-size: 18px;
-              font-weight: bold;
-              z-index: 1000;
-            }
-            #timer {
-              position: fixed;
-              bottom: 20px;
-              right: 20px;
-              background-color: rgba(0, 0, 0, 0.7);
-              color: white;
-              padding: 10px 15px;
-              border-radius: 5px;
-              font-size: 18px;
-              font-weight: bold;
-              z-index: 1000;
-            }
-
-            .confetti {
-              position: absolute;
-              width: 10px;
-              height: 10px;
-              background-color: #f2d74e;
-              opacity: 0;
-            }
-
-            @keyframes confetti-fall {
-              0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-              100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-            }
-
-            .try-again-btn {
-              display: inline-block;
-              padding: 10px 20px;
-              font-size: 16px;
-              background-color: #4CAF50;
-              color: white;
-              border: none;
-              border-radius: 5px;
-              cursor: pointer;
-              transition: background-color 0.3s;
-            }
-
-            .try-again-btn:hover {
-              background-color: #45a049;
-            }
-          </style>
-        </head>
-        <body>
-          <div id="score">Score: 0 / 0</div>
-          <div id="timer">Time: 40</div>
-          <div id="countdown">3</div>
-          <div id="quiz-content">
-            <h1>Random Popquiz</h1>
-            <div id="question-container"></div>
-          </div>
-          <script>
-            let questions = [];
-            let currentQuestion = 0;
-            let score = 0;
-            let timer;
-            let timeLeft = 40;
-
-            async function fetchQuestions() {
-              try {
-                const response = await fetch('https://opentdb.com/api.php?amount=10&type=multiple');
-                if (!response.ok) {
-                  throw new Error('Failed to fetch questions');
-                }
-                const data = await response.json();
-                questions = data.results.map(q => ({
-                  question: q.question,
-                  answers: [...q.incorrect_answers, q.correct_answer],
-                  correct: q.correct_answer
-                }));
-                questions.forEach(q => shuffleArray(q.answers));
-                shuffleArray(questions);
-                updateScore();
-                startQuiz();
-              } catch (error) {
-                console.error('Error fetching questions:', error);
-                document.getElementById('question-container').innerHTML = '<p>Failed to load questions. Please try again later.</p>';
-              }
-            }
-
-            function shuffleArray(array) {
-              for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-              }
-            }
-
-            function startQuiz() {
-              document.getElementById('countdown').style.display = 'none';
-              document.getElementById('quiz-content').style.display = 'block';
-              showQuestion();
-              startTimer();
-            }
-
-            function showQuestion() {
-              document.body.style.backgroundColor = '#FFFF00';
-              const questionContainer = document.getElementById('question-container');
-              const question = questions[currentQuestion];
-              let html = \`
-                <div class="question">
-                  <h2>Question \${currentQuestion + 1}:</h2>
-                  <p>\${decodeEntities(question.question)}</p>
-                  \${question.answers.map(answer => \`
-                    <button onclick="checkAnswer(this, '\${question.correct}')">\${decodeEntities(answer)}</button>
-                  \`).join('')}
-                </div>
-              \`;
-              questionContainer.innerHTML = html;
-              timeLeft = 40;
-              updateTimer();
-            }
-
-            function decodeEntities(text) {
-              const textArea = document.createElement('textarea');
-              textArea.innerHTML = text;
-              return textArea.value;
-            }
-
-            function checkAnswer(button, correctAnswer) {
-              clearInterval(timer);
-              const buttons = button.parentElement.getElementsByTagName('button');
-              for (let btn of buttons) {
-                btn.disabled = true;
-                if (btn.textContent === correctAnswer) {
-                  btn.classList.add('correct');
-                }
-              }
-              if (button.textContent === correctAnswer) {
-                score++;
-                button.classList.add('correct');
-              } else {
-                button.classList.add('incorrect');
-              }
-              updateScore();
-              setTimeout(nextQuestion, 2000);
-            }
-
-            function nextQuestion() {
-              currentQuestion++;
-              if (currentQuestion < questions.length) {
-                showQuestion();
-                startTimer();
-              } else {
-                endQuiz();
-              }
-            }
-
-            function startTimer() {
-              timer = setInterval(() => {
-                timeLeft--;
-                updateTimer();
-                if (timeLeft === 0) {
-                  clearInterval(timer);
-                  document.body.style.backgroundColor = '#B8B800';
-                  setTimeout(() => {
-                    nextQuestion();
-                  }, 1000);
-                }
-              }, 1000);
-            }
-
-            function updateTimer() {
-              document.getElementById('timer').textContent = \`Time: \${timeLeft}\`;
-            }
-
-            function updateScore() {
-              document.getElementById('score').textContent = \`Score: \${score} / \${questions.length}\`;
-            }
-
-            function endQuiz() {
-              clearInterval(timer);
-              document.getElementById('timer').style.display = 'none';
-              
-              if (score > 5) {
-                document.getElementById('question-container').innerHTML = \`
-                  <h2>Congratulations!</h2>
-                  <p>Your final score is: \${score} / \${questions.length}</p>
-                \`;
-                createConfetti();
-              } else {
-                document.getElementById('question-container').innerHTML = \`
-                  <h2>Quiz Completed</h2>
-                  <p>Your final score is: \${score} / \${questions.length}</p>
-                  <p>Better luck next time!</p>
-                  <button class="try-again-btn" onclick="restartQuiz()">Try Again</button>
-                \`;
-              }
-            }
-
-            function createConfetti() {
-              const confettiCount = 200;
-              const colors = ['#f2d74e', '#95c3de', '#ff9a91', '#f2b2f2', '#cefc86'];
-
-              for (let i = 0; i < confettiCount; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
-                confetti.style.animationDelay = Math.random() * 5 + 's';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.animation = 'confetti-fall linear forwards';
-                document.body.appendChild(confetti);
-
-                setTimeout(() => {
-                  document.body.removeChild(confetti);
-                }, 5000);
-              }
-            }
-
-            function restartQuiz() {
-              currentQuestion = 0;
-              score = 0;
-              updateScore();
-              fetchQuestions();
-            }
-
-            let count = 3;
-            const countdownElement = document.getElementById('countdown');
-            
-            function updateCountdown() {
-              countdownElement.textContent = count;
-              if (count > 0) {
-                count--;
-                setTimeout(updateCountdown, 1000);
-              } else {
-                fetchQuestions();
-              }
-            }
-            
-            updateCountdown();
-          </script>
-        </body>
-      </html>
-    `);
+    setGameState('countdown');
   };
+
+  useEffect(() => {
+    let timer;
+    if (gameState === 'countdown' && countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    } else if (gameState === 'countdown' && countdown === 0) {
+      setGameState('quiz');
+    }
+    return () => clearTimeout(timer);
+  }, [gameState, countdown]);
 
   return (
     <div className="App">
       <NerdBackground />
-      <div className="App-header">
-        <h1>Random Popquiz</h1>
-        <button onClick={handleStart} className="start-button">
-          Click to start
+      {gameState === 'start' && (
+        <div className="App-header">
+          <h1>Random Popquiz</h1>
+          <button onClick={handleStart} className="start-button">
+            Click to start
+          </button>
+        </div>
+      )}
+      {gameState === 'countdown' && (
+        <div className="countdown-container">
+          <h2>Get Ready!</h2>
+          <div className="countdown">{countdown}</div>
+        </div>
+      )}
+      {gameState === 'quiz' && <Quiz />}
+    </div>
+  );
+}
+
+function Quiz() {
+  const [questions, setQuestions] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(40);
+  const [quizEnded, setQuizEnded] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(null);
+
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  useEffect(() => {
+    if (timeLeft > 0 && !quizEnded) {
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (timeLeft === 0 && !quizEnded) {
+      setQuizEnded(true);
+    }
+  }, [timeLeft, quizEnded]);
+
+  const fetchQuestions = async () => {
+    try {
+      const response = await fetch('https://opentdb.com/api.php?amount=10&difficulty=medium');
+      if (!response.ok) {
+        throw new Error('Failed to fetch questions');
+      }
+      const data = await response.json();
+      const fetchedQuestions = data.results.map(q => ({
+        question: decodeEntities(q.question),
+        answers: [...q.incorrect_answers, q.correct_answer].map(decodeEntities),
+        correct: decodeEntities(q.correct_answer)
+      }));
+      fetchedQuestions.forEach(q => shuffleArray(q.answers));
+      setQuestions(fetchedQuestions);
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    }
+  };
+
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  };
+
+  const decodeEntities = (text) => {
+    const textArea = document.createElement('textarea');
+    textArea.innerHTML = text;
+    return textArea.value;
+  };
+
+  const checkAnswer = (answer) => {
+    setSelectedAnswer(answer);
+    const currentQ = questions[currentQuestion];
+    const correct = answer === currentQ.correct;
+    setIsCorrect(correct);
+
+    if (correct) {
+      setScore(score + 1);
+    }
+
+    // Wait for a moment before moving to the next question
+    setTimeout(() => {
+      if (currentQuestion + 1 < questions.length) {
+        setCurrentQuestion(currentQuestion + 1);
+        setTimeLeft(40); // Reset timer for next question
+        setSelectedAnswer(null);
+        setIsCorrect(null);
+      } else {
+        setQuizEnded(true);
+      }
+    }, 1000); // Wait for 1 second
+  };
+
+  const restartQuiz = () => {
+    setCurrentQuestion(0);
+    setScore(0);
+    setTimeLeft(40);
+    setQuizEnded(false);
+    fetchQuestions();
+  };
+
+  if (questions.length === 0) {
+    return <div>Loading questions...</div>;
+  }
+
+  if (quizEnded) {
+    return (
+      <div className="quiz-container">
+        <h2>{score > 5 ? 'Congratulations!' : 'Quiz Completed'}</h2>
+        <p>Your final score is: {score} / {questions.length}</p>
+        <button className="try-again-btn" onClick={restartQuiz}>
+          Try Again
         </button>
+      </div>
+    );
+  }
+
+  const question = questions[currentQuestion];
+
+  return (
+    <div className="quiz-container">
+      <div className="score-timer-container">
+        <div id="score">Score: {score} / {questions.length}</div>
+        <div id="timer">Time: {timeLeft}</div>
+      </div>
+      <div className="question">
+        <h2>Question {currentQuestion + 1}:</h2>
+        <p>{question.question}</p>
+        <div className="answers">
+          {question.answers.map((answer, index) => (
+            <button
+              key={index}
+              onClick={() => checkAnswer(answer)}
+              className={`
+                ${selectedAnswer === answer ? (isCorrect ? 'correct' : 'incorrect') : ''}
+                ${selectedAnswer && answer === question.correct ? 'correct' : ''}
+              `}
+              disabled={selectedAnswer !== null}
+            >
+              {answer}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
